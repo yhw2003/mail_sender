@@ -4,12 +4,15 @@ import time
 from email.message import EmailMessage
 import json
 from utils.excel_collector import IterXlsx
+from email.mime.text import MIMEText
+from email.header import Header
+from email.mime.multipart import MIMEMultipart
 
 
 context = ssl.create_default_context()
 cf = json.load(open('./config.json', 'r'))
 sender = cf['sender_name']
-tmp = open('Templet', 'r')
+tmp = open('./Template', 'r')
 tmp = tmp.read()
 xlsx = cf['excel']
 
@@ -20,8 +23,9 @@ def build_email(html_message: str, receiver_addr: str, receiver_name: str):
     msg = EmailMessage()
     msg['From'] = f"{cf['sender_name']} {cf['email_addr']}"
     msg['To'] = f"{receiver_name} {receiver_addr}"
-    msg.set_content(html_message)
+    # msg.attach(MIMEText(msg, "html"))
     msg['Subject'] = f"{cf['sub']}"
+    msg.add_alternative(html_message, subtype="html")
     return msg
 
 
@@ -33,7 +37,7 @@ def main():
         smtp_key = cf['smtp_key']
         smtp_cli.login(user=email_addr, password=smtp_key)
         for member in IterXlsx(xlsx):
-            msg = build_email(tmp.replace('{$name}', member.name), member.mail, member.name)
+            msg = build_email(tmp.replace('{{.Name}}', member.name), member.mail, member.name)
             smtp_cli.sendmail(from_addr=email_addr, to_addrs=member.mail, msg=msg.as_string())
             print(f"Send: {msg}")
             time.sleep(0.5)
