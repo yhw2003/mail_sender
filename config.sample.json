@@ -1,0 +1,11 @@
+{
+  "excel": "", //xlsx文件路径
+  "sub": "", //标题
+  "email_addr": "", //yhw@sample.com
+  "sender_name": "", //发送者名字
+  "smtp_key": "",
+  "smtp_server": {
+    "server": "", //stmp_url smtp.qq.com
+    "port": 0 // smtp_ssl端口
+  }
+}
