@@ -1,5 +1,6 @@
 import smtplib
 import ssl
+import time
 from email.message import EmailMessage
 import json
 from utils.excel_collector import IterXlsx
@@ -32,8 +33,10 @@ def main():
         smtp_key = cf['smtp_key']
         smtp_cli.login(user=email_addr, password=smtp_key)
         for member in IterXlsx(xlsx):
-            msg = build_email(tmp.replace('$name', member.name), member.mail, member.name)
+            msg = build_email(tmp.replace('{$name}', member.name), member.mail, member.name)
             smtp_cli.sendmail(from_addr=email_addr, to_addrs=member.mail, msg=msg.as_string())
+            print(f"Send: {msg}")
+            time.sleep(0.5)
 
         # msg = build_email(tmp.replace("{$msg}", "hello"), "540122658@qq.com", "mr_yang")
         # smtp_cli.sendmail(from_addr=email_addr, to_addrs="540122658@qq.com", msg=msg.as_string())
