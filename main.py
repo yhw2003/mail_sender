@@ -2,11 +2,14 @@ import smtplib
 import ssl
 import time
 from email.message import EmailMessage
-import json
-from utils.excel_collector import IterXlsx
-from email.mime.text import MIMEText
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
+import json
+from email.mime.text import MIMEText
+from email.utils import formataddr
+from utils.excel_collector import IterXlsx
+import base64
+
 
 
 context = ssl.create_default_context()
@@ -20,12 +23,13 @@ xlsx = cf['excel']
 
 
 def build_email(html_message: str, receiver_addr: str, receiver_name: str):
-    msg = EmailMessage()
-    msg['From'] = f"{cf['sender_name']} {cf['email_addr']}"
-    msg['To'] = f"{receiver_name} {receiver_addr}"
-    # msg.attach(MIMEText(msg, "html"))
-    msg['Subject'] = f"{cf['sub']}"
-    msg.add_alternative(html_message, subtype="html")
+    msg = MIMEMultipart()
+    msg['Subject'] = f"{receiver_name} 请查收你的面试通知"
+    sender_name = base64.b64encode(cf['sender_name'].encode('utf-8')).decode()
+    msg['From'] = f"=?UTF-8?B?{sender_name}=?= <{cf['email_addr']}>"
+    receiver_name = base64.b64encode(receiver_name.encode('utf-8')).decode()
+    msg['To'] = f"=?UTF-8?B?{receiver_name}=?= <{receiver_addr}>"
+    msg.attach(MIMEText(html_message, 'html', 'utf-8'))
     return msg
 
 
